@@ -1,12 +1,14 @@
 <template>
-    <div class="ship-card">
-        <h2 class="name">{{ name }}</h2>
-        <div class="stats">
-            <p class="health">HP {{ health }}</p>
-            <p class="firepower">FP {{ firepower }}</p>
-            <p class="torpedo">TP {{ torpedo }}</p>
-            <p class="antiair">AA {{ antiair }}</p>
-            <p class="armor">AR {{ armor }}</p>
+    <div class="ship-card"  :style="{ backgroundImage: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.169), rgb(48, 0, 36)), url(' + image + ')' }">
+        <div class="content">
+            <h2 class="name">{{ name }}</h2>
+            <div class="stats">
+                <p class="stat health">HP<br>{{ health }}</p>
+                <p class="stat firepower">FP<br>{{ firepower }}</p>
+                <p class="stat torpedo">TP<br>{{ torpedo }}</p>
+                <p class="stat antiair">AA<br>{{ antiair }}</p>
+                <p class="stat armor">AR<br>{{ armor }}</p>
+            </div>
         </div>
     </div>
 </template>
@@ -15,43 +17,50 @@
 export default {
     name: 'ShipCard',
     props: {
+        image: {type: String, required: true},
         name: {type: String, required: true},
-        health: {type: String, required: true},
-        firepower: {type: String, required: true},
-        torpedo: {type: String, required: true},
-        antiair: {type: String, required: true},
-        armor: {type: String, required: true}
+        health: {type: Number, required: true},
+        firepower: {type: Number, required: true},
+        torpedo: {type: Number, required: true},
+        antiair: {type: Number, required: true},
+        armor: {type: Number, required: true}
     }
 }
 </script>
 
 <style scoped>
 .ship-card {
-    background-image:
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.169), rgb(48, 0, 36)),
-    url('@/assets/Nagato.png');
+    display: flex;
+    flex-direction: row;
     width: 218px;
     height: 310px;
     background-size: cover;
     color: white;
+    border-radius: 10px;
+    margin: 10px;
+}
+
+.content {
+    width: 100%;
+    padding: 10px;
+    align-self: flex-end;
+    align-content: center;
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .name {
-    padding: 20px;
     display: flex;
-}
-
-.ship-card h2 {
-    align-self: flex-end;
+    padding: 10px;
 }
 
 .stats {
-    padding: 20px;
     display: flex;
+    justify-content: space-around;
 }
 
-.stats p {
-    align-self: flex-end;
-    padding-left: 10px;
+.stat {
+    text-align: center;
 }
 </style>
