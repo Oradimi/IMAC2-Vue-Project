@@ -1,7 +1,7 @@
 <template>
 <div class="top-bar">
   <p>Sort by</p>
-  <select name="sort-options" class="sort-options" v-model="selectedSortOption" @change="sortShipsBy(selectedSortOption)">
+  <select name="sort-options" class="sort-options" v-model="sortOption" @change="sortShipsBy(sortOption)">
     <option value="id">ID</option>
     <option value="health">HP</option>
     <option value="firepower">FP</option>
@@ -9,7 +9,7 @@
     <option value="anti-air">AA</option>
     <option value="armor">AR</option>
   </select>
-  <div class="custom-arrow"></div>
+  <div class="custom-arrow" :class="{ 'descending': !sortReverse, 'ascending': sortReverse }" @click="reverseSort" @change="sortShipsBy(sortOption)"></div>
 </div>
 
 <!-- Loading screen -->
@@ -17,8 +17,8 @@
   Loading...
 </div>
 <div v-else class="main">
+  <div v-for="(ship, index) in displayedShips" :key="index" class="ship-card-container">
   <ShipCard
-  v-for="(ship, index) in displayedShips" :key="index" class="ship-card-container"
   :image="getShipPath(ship.api_id, 'ship', 'card', 'png')"
   :name="ship.api_name"
   :health="ship.api_taik[1]"
@@ -26,6 +26,7 @@
   :torpedo="ship.api_raig[1]"
   :antiair="ship.api_tyku[1]"
   :armor="ship.api_souk[1]"/>
+</div>
 </div>
 
 <footer>
@@ -41,7 +42,7 @@
 import { getApiData } from './service/api';
 import ShipCard from './components/Ship.vue';
 
-const sortingOptions = {
+const sortOptions = {
   'id': (a, b) => a.api_id - b.api_id,
   'health': (a, b) => a.api_taik[1] - b.api_taik[1],
   'firepower': (a, b) => a.api_houg[1] - b.api_houg[1],
@@ -55,9 +56,10 @@ export default {
   data() {
     return {
       apiData: {},
-      shipList: {},
+      shipList: [],
       isLoading: false,
-      selectedSortOption: 'id',
+      sortOption: 'id',
+      sortReverse: false,
       currentPage: 1,
       perPage: 20
     };
@@ -73,7 +75,10 @@ export default {
       }
     },
     async sortShipsBy(option) {
-      this.selectedSortOption = option;
+      this.sortOption = option;
+    },
+    reverseSort() {
+      this.sortReverse = !this.sortReverse;
     },
     nextPage() {
       if (this.currentPage < this.totalPages) {
@@ -101,15 +106,14 @@ export default {
     }
   },
   computed: {
-    preFilterShips() {
+    async preFilterShips() {
       // removes enemies from the list, which lack data
       return this.apiData.api_mst_ship.filter(ship => ship.api_taik !== undefined);
     },
     sortedShips() {
-      return this.shipList.slice().sort(sortingOptions[this.selectedSortOption]);
+      return this.sortReverse? this.shipList.sort(sortOptions[this.sortOption]).reverse() : this.shipList.sort(sortOptions[this.sortOption]);
     },
     totalItems() {
-      console.log(this.sortedShips.length);
       return this.sortedShips.length;
     },
     totalPages() {
@@ -169,10 +173,18 @@ select {
   right: 25px;
   width: 0;
   height: 0;
+}
+
+.ascending {
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
-  border-top: 5px solid white;
-  pointer-events: none;
+  border-bottom: 10px solid white;
+}
+
+.descending {
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 10px solid white;
 }
 
 .loading-screen {
@@ -186,6 +198,7 @@ select {
   justify-content: center;
   align-items: center;
   color: white;
+  z-index: 2;
 }
 
 .main {
