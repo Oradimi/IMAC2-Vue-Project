@@ -1,7 +1,10 @@
 <template>
-    <div class="ship-card"  :style="{ backgroundImage: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.169), rgb(48, 0, 36)), url(' + image + ')' }">
+    <div class="ship-card"  :style="{ backgroundImage: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.169) 30%, rgb(48, 0, 36) 100%), url(' + image + ')' }">
         <div class="content">
-            <h2 class="name">{{ name }}</h2>
+            <div class="info">
+                <h2 class="name">{{ name }}</h2>
+                <p class="type">{{ type }}</p>
+            </div>
             <div class="stats">
                 <p class="stat health">HP<br>{{ health }}</p>
                 <p class="stat firepower">FP<br>{{ firepower }}</p>
@@ -19,6 +22,7 @@ export default {
     props: {
         image: {type: String, required: true},
         name: {type: String, required: true},
+        type: {type: String, required: false},
         health: {type: Number, required: true},
         firepower: {type: Number, required: true},
         torpedo: {type: Number, required: true},
@@ -50,9 +54,14 @@ export default {
     flex-direction: column;
 }
 
-.name {
+.info {
     display: flex;
+    align-items: center;
     padding: 10px;
+}
+
+.type::before {
+    content: "・"
 }
 
 .stats {

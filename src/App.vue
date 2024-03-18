@@ -21,6 +21,7 @@
   <ShipCard
   :image="getShipPath(ship.api_id, 'ship', 'card', 'png')"
   :name="ship.api_name"
+  :type="shipTypeList[ship.api_stype]"
   :health="ship.api_taik[1]"
   :firepower="ship.api_houg[1]"
   :torpedo="ship.api_raig[1]"
@@ -57,6 +58,7 @@ export default {
     return {
       apiData: {},
       shipList: [],
+      shipTypeList: {}, 
       isLoading: false,
       sortOption: 'id',
       sortReverse: false,
@@ -70,6 +72,7 @@ export default {
       try {
         this.apiData = await getApiData();
         this.shipList = await this.preFilterShips;
+        this.shipTypeList = await this.makeShipTypeTable;
       } finally {
         this.isLoading = false;
       }
@@ -109,6 +112,13 @@ export default {
     async preFilterShips() {
       // removes enemies from the list, which lack data
       return this.apiData.api_mst_ship.filter(ship => ship.api_taik !== undefined);
+    },
+    async makeShipTypeTable() {
+      const shipTypeTable = {};
+      this.apiData.api_mst_stype.forEach(stype => {
+        shipTypeTable[stype.api_id] = stype.api_name;
+      });
+      return shipTypeTable;
     },
     sortedShips() {
       return this.sortReverse? this.shipList.sort(sortOptions[this.sortOption]).reverse() : this.shipList.sort(sortOptions[this.sortOption]);
