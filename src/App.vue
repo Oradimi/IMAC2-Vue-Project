@@ -9,43 +9,53 @@
     <option value="anti-air">AA</option>
     <option value="armor">AR</option>
   </select>
+  <div class="custom-arrow"></div>
 </div>
 
 <!-- Loading screen -->
 <div v-if="isLoading" class="loading-screen">
   Loading...
 </div>
-
 <div v-else class="main">
-  <div v-for="(ship, index) in displayedShips" :key="index" class="ship-card-container">
-    <!-- <div v-if="ship.api_taik !== undefined"> -->
-      <ShipCard
-      :image="getShipPath(ship.api_id, 'ship', 'card', 'png')"
-      :name="ship.api_name"
-      :health="ship.api_taik[1]"
-      :firepower="ship.api_houg[1]"
-      :torpedo="ship.api_raig[1]"
-      :antiair="ship.api_tyku[1]"
-      :armor="ship.api_souk[1]"/>
-    <!-- </div> -->
-  </div>
-
-  <div class="pagination">
-    <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
-    <span>{{ currentPage }} / {{ totalPages }}</span>
-    <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
-  </div>
+  <ShipCard
+  v-for="(ship, index) in displayedShips" :key="index" class="ship-card-container"
+  :image="getShipPath(ship.api_id, 'ship', 'card', 'png')"
+  :name="ship.api_name"
+  :health="ship.api_taik[1]"
+  :firepower="ship.api_houg[1]"
+  :torpedo="ship.api_raig[1]"
+  :antiair="ship.api_tyku[1]"
+  :armor="ship.api_souk[1]"/>
 </div>
+
+<footer>
+<div class="pagination">
+  <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
+  <span>{{ currentPage }} / {{ totalPages }}</span>
+  <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
+</div>
+</footer>
 </template>
 
 <script>
 import { getApiData } from './service/api';
-import ShipCard from './components/Ship.vue'
+import ShipCard from './components/Ship.vue';
+
+const sortingOptions = {
+  'id': (a, b) => a.api_id - b.api_id,
+  'health': (a, b) => a.api_taik[1] - b.api_taik[1],
+  'firepower': (a, b) => a.api_houg[1] - b.api_houg[1],
+  'torpedo': (a, b) => a.api_raig[1] - b.api_raig[1],
+  'anti-air': (a, b) => a.api_tyku[1] - b.api_tyku[1],
+  'armor': (a, b) => a.api_souk[1] - b.api_souk[1]
+};
+
 export default {
   name: 'Gallery',
   data() {
     return {
       apiData: {},
+      shipList: {},
       isLoading: false,
       selectedSortOption: 'id',
       currentPage: 1,
@@ -57,22 +67,13 @@ export default {
       this.isLoading = true;
       try {
         this.apiData = await getApiData();
+        this.shipList = await this.preFilterShips;
       } finally {
         this.isLoading = false;
       }
     },
     async sortShipsBy(option) {
-      this.isLoading = true; // Set loading state to true before sorting
       this.selectedSortOption = option;
-      this.isLoading = false; // Set loading state to false after sorting
-
-      try {
-        // Simulate sorting delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        // Your sorting logic
-      } finally {
-        this.isLoading = false; // Set loading state to false after sorting
-      }
     },
     nextPage() {
       if (this.currentPage < this.totalPages) {
@@ -100,27 +101,12 @@ export default {
     }
   },
   computed: {
+    preFilterShips() {
+      // removes enemies from the list, which lack data
+      return this.apiData.api_mst_ship.filter(ship => ship.api_taik !== undefined);
+    },
     sortedShips() {
-      if (this.apiData.api_mst_ship === undefined) return;
-      return this.apiData.api_mst_ship.slice().sort((a, b) => {
-        if (a.api_taik !== undefined && b.api_taik !== undefined) {
-          if (this.selectedSortOption === 'health') {
-            return a.api_taik[1] - b.api_taik[1];
-          } else if (this.selectedSortOption === 'firepower') {
-            return a.api_houg[1] - b.api_houg[1];
-          } else if (this.selectedSortOption === 'torpedo') {
-            return a.api_raig[1] - b.api_raig[1];
-          } else if (this.selectedSortOption === 'anti-air') {
-            return a.api_tyku[1] - b.api_tyku[1];
-          } else if (this.selectedSortOption === 'armor') {
-            return a.api_souk[1] - b.api_souk[1];
-          } else {
-            return a.api_id - b.api_id;
-          }
-        } else {
-          return this.apiData.api_mst_ship;
-        }
-      });
+      return this.shipList.slice().sort(sortingOptions[this.selectedSortOption]);
     },
     totalItems() {
       console.log(this.sortedShips.length);
@@ -138,7 +124,7 @@ export default {
     ShipCard
   },
   created() {
-    this.retrieveApiData()
+    this.retrieveApiData();
   }
 }
 </script>
@@ -157,22 +143,20 @@ export default {
   background-color: rgb(48, 0, 36);
 }
 
-.top-bar> * {
-  padding: 10px;
-}
-
 select {
-  /* styling */
   color: aliceblue;
   background-color: rgb(142, 107, 133);
   border: thin solid blue;
   border-radius: 10px;
   display: inline-block;
   font: inherit;
+  text-align: center;
   line-height: 1.5em;
+  outline: none;
 
-  /* reset */
-  margin: 0;      
+  margin: 0 10px;
+  padding-block: 1px;
+  padding-inline: 6px 15px;  
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -180,11 +164,15 @@ select {
   -moz-appearance: none;
 }
 
-.main {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  margin-top: 80px;
+.custom-arrow {
+  position: relative;
+  right: 25px;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid white;
+  pointer-events: none;
 }
 
 .loading-screen {
@@ -198,5 +186,48 @@ select {
   justify-content: center;
   align-items: center;
   color: white;
+}
+
+.main {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  margin: 80px 0;
+}
+
+footer {
+  display: flex;
+  position: fixed;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 50px;
+  padding: 10px;
+  bottom: 0;
+  left: 0;
+  background-color: rgb(48, 0, 36);
+}
+
+button {
+  color: aliceblue;
+  background-color: rgb(142, 107, 133);
+  border: thin solid blue;
+  border-radius: 10px;
+  display: inline-block;
+  font: inherit;
+  line-height: 1.5em;
+
+  margin: 0 10px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+button:active {
+  background-color: rgb(98, 65, 90);
 }
 </style>
