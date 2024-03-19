@@ -41,7 +41,7 @@
 
 <script>
 import { getApiData } from './service/api';
-import ShipCard from './components/Ship.vue';
+import ShipCard from './components/ShipCard.vue';
 
 const sortOptions = {
   'id': (a, b) => a.api_id - b.api_id,

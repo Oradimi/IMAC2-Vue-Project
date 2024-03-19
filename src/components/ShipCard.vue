@@ -31,9 +31,8 @@ export default {
         armor: {type: Number, required: true}
     },
     setup() {
-        const haha = 0;
+        // currently not working on page change
         const name_span = ref(null);
-
         onMounted(() => {
             const transitionTimePerPixel = 0.01;
             if (name_span.value && name_span.value.lastChild.clientWidth !== name_span.value.clientWidth) {
