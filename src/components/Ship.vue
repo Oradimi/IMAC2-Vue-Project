@@ -1,5 +1,5 @@
 <template>
-    <div class="ship-card"  :style="{ backgroundImage: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.169) 30%, rgb(48, 0, 36) 100%), url(' + image + ')' }">
+    <div class="ship-card" :style="{ backgroundImage: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.169) 30%, rgb(48, 0, 36) 100%), url(' + image + ')' }">
         <div class="content">
             <div class="info">
                 <h2 class="name" ref="name_span"><span>{{ name }}</span></h2>
@@ -36,7 +36,7 @@ export default {
 
         onMounted(() => {
             const transitionTimePerPixel = 0.01;
-            if (name_span.value) {
+            if (name_span.value && name_span.value.lastChild.clientWidth !== name_span.value.clientWidth) {
                 name_span.value.addEventListener('mouseenter', () => {
                     let textWidth = name_span.value.lastChild.clientWidth;
                     let boxWidth = parseFloat(getComputedStyle(name_span.value).width);
@@ -97,7 +97,6 @@ export default {
 
 .name > span {
     display: inline-block;
-    white-space: nowrap;
     transition-timing-function: linear;
 }
 
