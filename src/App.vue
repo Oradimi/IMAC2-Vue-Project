@@ -155,6 +155,7 @@ export default {
   top: 0;
   left: 0;
   background-color: rgb(48, 0, 36);
+  z-index: 3;
 }
 
 select {
@@ -208,7 +209,7 @@ select {
   justify-content: center;
   align-items: center;
   color: white;
-  z-index: 2;
+  z-index: 4;
 }
 
 .main {
@@ -231,6 +232,7 @@ footer {
   bottom: 0;
   left: 0;
   background-color: rgb(48, 0, 36);
+  z-index: 3;
 }
 
 button {
