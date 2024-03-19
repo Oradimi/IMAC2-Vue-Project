@@ -1,24 +1,10 @@
 <template>
-<div class="top-bar">
-  <p>Sort by</p>
-  <select name="sort-options" class="sort-options" v-model="sortOption" @change="sortShipsBy(sortOption)">
-    <option value="id">ID</option>
-    <option value="health">HP</option>
-    <option value="firepower">FP</option>
-    <option value="torpedo">TP</option>
-    <option value="anti-air">AA</option>
-    <option value="armor">AR</option>
-  </select>
-  <div class="custom-arrow" :class="{ 'descending': !sortReverse, 'ascending': sortReverse }" @click="reverseSort" @change="sortShipsBy(sortOption)"></div>
-</div>
+<TopBar @sort="sortShipsBy" @reverse-sort="reverseSort" @filter="filterShipsBy"/>
 
-<!-- Loading screen -->
-<div v-if="isLoading" class="loading-screen">
-  Loading...
-</div>
+<LoadingScreen v-if="isLoading"/>
 <div v-else class="main">
-  <div v-for="(ship, index) in displayedShips" :key="index" class="ship-card-container">
   <ShipCard
+  v-for="(ship, index) in displayedShips" :key="index"
   :image="getShipPath(ship.api_id, 'ship', 'card', 'png')"
   :name="ship.api_name"
   :type="shipTypeList[ship.api_stype]"
@@ -28,20 +14,16 @@
   :antiair="ship.api_tyku[1]"
   :armor="ship.api_souk[1]"/>
 </div>
-</div>
 
-<footer>
-<div class="pagination">
-  <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
-  <span>{{ currentPage }} / {{ totalPages }}</span>
-  <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
-</div>
-</footer>
+<PageFooter :currentPage="currentPage" :totalPages="totalPages" @next-page="nextPage" @prev-page="prevPage"/>
 </template>
 
 <script>
 import { getApiData } from './service/api';
+import TopBar from './components/TopBar.vue';
+import LoadingScreen from './components/LoadingScreen.vue';
 import ShipCard from './components/ShipCard.vue';
+import PageFooter from './components/PageFooter.vue';
 
 const sortOptions = {
   'id': (a, b) => a.api_id - b.api_id,
@@ -62,27 +44,50 @@ export default {
       isLoading: false,
       sortOption: 'id',
       sortReverse: false,
+      filterOption: 0,
       currentPage: 1,
       perPage: 20
     };
   },
   methods: {
-    async retrieveApiData() {
+    async retrieveData() {
       this.isLoading = true;
       try {
         this.apiData = await getApiData();
-        this.shipList = await this.preFilterShips;
-        this.shipTypeList = await this.makeShipTypeTable;
+        this.shipList = await this.preFilterShips();
+        this.shipTypeList = await this.makeShipTypeTable();
       } finally {
         this.isLoading = false;
       }
     },
-    async sortShipsBy(option) {
+    async preFilterShips() {
+      // removes enemies from the list, which lack data
+      return this.apiData.api_mst_ship.filter(ship => ship.api_taik !== undefined);
+    },
+    async makeShipTypeTable() {
+      const shipTypeTable = {};
+      this.apiData.api_mst_stype.forEach(stype => {
+        shipTypeTable[stype.api_id] = stype.api_name;
+      });
+      return shipTypeTable;
+    },
+
+    sortShipsBy(option) {
       this.sortOption = option;
     },
     reverseSort() {
       this.sortReverse = !this.sortReverse;
     },
+    filterShipsBy(option) {
+      this.filterOption = parseInt(option);
+      if (this.currentPage > this.totalPages) {
+        this.currentPage = this.totalPages;
+      }
+      if (this.currentPage < 1 && this.totalPages !== 0) {
+        this.currentPage = 1;
+      } 
+    },
+
     nextPage() {
       if (this.currentPage < this.totalPages) {
         this.currentPage++;
@@ -93,6 +98,7 @@ export default {
         this.currentPage--;
       }
     },
+    
     getShipPath(id, eors, type, ext, filename) {
       const resource = [6657, 5699, 3371, 8909, 7719, 6229, 5449, 8561, 2987, 5501, 3127, 9319, 4365, 9811, 9927, 2423, 3439, 1865, 5925, 4409, 5509, 1517, 9695, 9255, 5325, 3691, 5519, 6949, 5607, 9539, 4133, 7795, 5465, 2659, 6381, 6875, 4019, 9195, 5645, 2887, 1213, 1815, 8671, 3015, 3147, 2991, 7977, 7045, 1619, 7909, 4451, 6573, 4545, 8251, 5983, 2849, 7249, 7449, 9477, 5963, 2711, 9019, 7375, 2201, 5631, 4893, 7653, 3719, 8819, 5839, 1853, 9843, 9119, 7023, 5681, 2345, 9873, 6349, 9315, 3795, 9737, 4633, 4173, 7549, 7171, 6147, 4723, 5039, 2723, 7815, 6201, 5999, 5339, 4431, 2911, 4435, 3611, 4423, 9517, 3243];
       const key = s => s.split("").reduce((a, e) => a + e.charCodeAt(0), 0);
@@ -109,109 +115,38 @@ export default {
     }
   },
   computed: {
-    async preFilterShips() {
-      // removes enemies from the list, which lack data
-      return this.apiData.api_mst_ship.filter(ship => ship.api_taik !== undefined);
-    },
-    async makeShipTypeTable() {
-      const shipTypeTable = {};
-      this.apiData.api_mst_stype.forEach(stype => {
-        shipTypeTable[stype.api_id] = stype.api_name;
-      });
-      return shipTypeTable;
-    },
-    sortedShips() {
-      return this.sortReverse? this.shipList.sort(sortOptions[this.sortOption]).reverse() : this.shipList.sort(sortOptions[this.sortOption]);
-    },
     totalItems() {
-      return this.sortedShips.length;
+      return this.filteredShips.length;
     },
     totalPages() {
       return Math.ceil(this.totalItems / this.perPage);
     },
+  
+    sortedShips() {
+      return this.sortReverse? this.shipList.sort(sortOptions[this.sortOption]).reverse() : this.shipList.sort(sortOptions[this.sortOption]);
+    },
+    filteredShips() {
+      if (this.filterOption === 0) return this.sortedShips;
+      return this.sortedShips.filter(ship => ship.api_stype == this.filterOption);
+    },
     displayedShips() {
       const start = (this.currentPage - 1) * this.perPage;
-      return this.sortedShips.slice(start, start + this.perPage);
+      return this.filteredShips.slice(start, start + this.perPage);
     }
   },
   components: {
-    ShipCard
+    TopBar,
+    LoadingScreen,
+    ShipCard,
+    PageFooter
   },
   created() {
-    this.retrieveApiData();
+    this.retrieveData();
   }
 }
 </script>
 
 <style scoped>
-.top-bar {
-  display: flex;
-  position: fixed;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 50px;
-  padding: 10px;
-  top: 0;
-  left: 0;
-  background-color: rgb(48, 0, 36);
-  z-index: 3;
-}
-
-select {
-  color: aliceblue;
-  background-color: rgb(142, 107, 133);
-  border: thin solid blue;
-  border-radius: 10px;
-  display: inline-block;
-  font: inherit;
-  text-align: center;
-  line-height: 1.5em;
-  outline: none;
-
-  margin: 0 10px;
-  padding-block: 1px;
-  padding-inline: 6px 15px;  
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-}
-
-.custom-arrow {
-  position: relative;
-  right: 25px;
-  width: 0;
-  height: 0;
-}
-
-.ascending {
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-bottom: 10px solid white;
-}
-
-.descending {
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 10px solid white;
-}
-
-.loading-screen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  z-index: 4;
-}
-
 .main {
   display: flex;
   flex-direction: row;
@@ -219,40 +154,5 @@ select {
   align-items: center;
   justify-content: center;
   margin: 80px 0;
-}
-
-footer {
-  display: flex;
-  position: fixed;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 50px;
-  padding: 10px;
-  bottom: 0;
-  left: 0;
-  background-color: rgb(48, 0, 36);
-  z-index: 3;
-}
-
-button {
-  color: aliceblue;
-  background-color: rgb(142, 107, 133);
-  border: thin solid blue;
-  border-radius: 10px;
-  display: inline-block;
-  font: inherit;
-  line-height: 1.5em;
-
-  margin: 0 10px;
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-}
-
-button:active {
-  background-color: rgb(98, 65, 90);
 }
 </style>
