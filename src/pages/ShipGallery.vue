@@ -1,13 +1,5 @@
 <template>
-<header>
-  KanColle Glossary
-</header>
-<router-view v-slot="{ Component }">
-  <transition name="slide-fade">
-    <component :is="Component" />
-  </transition>
-</router-view>
-<!-- <PageHeader @sort="sortShipsBy" @reverse-sort="reverseSort" @filter="filterShipsBy"/>
+<PageHeader @sort="sortShipsBy" @reverse-sort="reverseSort" @filter="filterShipsBy"/>
 
 <LoadingScreen v-if="isLoading"/>
 <div v-else class="main">
@@ -23,21 +15,19 @@
   :armor="ship.api_souk[1]"/>
 </div>
 
-<PageFooter :currentPage="currentPage" :totalPages="totalPages" @next-page="nextPage" @prev-page="prevPage"/> -->
-<footer>
-  Powered by VueJS - Any issues? Contact Oradimi on the English KC Discord
-</footer>
+<!-- <PageFooter :currentPage="currentPage" :totalPages="totalPages" @next-page="nextPage" @set-page="value => { currentPage = value }"/> -->
+<PageFooter :currentPage="currentPage" :totalPages="totalPages" @next-page="nextPage" @prev-page="prevPage"/>
 </template>
 
 <script>
-import { getApiData } from './service/api';
-import { getShipNameTL } from './service/ships';
-import { getShipTypeTL } from './service/ship_types';
+import { getApiData } from '@/service/api';
+import { getShipNameTL } from '@/service/ships';
+import { getShipTypeTL } from '@/service/ship_types';
 
-import PageHeader from './components/PageHeader.vue';
-import LoadingScreen from './components/LoadingScreen.vue';
-import ShipCard from './components/ShipCard.vue';
-import PageFooter from './components/PageFooter.vue';
+import PageHeader from '@/components/PageHeader.vue';
+import LoadingScreen from '@/components/LoadingScreen.vue';
+import ShipCard from '@/components/ShipCard.vue';
+import PageFooter from '@/components/PageFooter.vue';
 
 const sortOptions = {
   'id': (a, b) => a.api_id - b.api_id,
@@ -78,8 +68,8 @@ export default {
         this.apiData = await getApiData();
         this.shipList = await this.preFilterShips();
         this.shipTypeList = await this.makeShipTypeTable();
-        this.shipNameTLs = await getShipNameTL();
-        this.shipTypeTLs = await getShipTypeTL();
+        this.shipNameTLs = getShipNameTL();
+        this.shipTypeTLs = getShipTypeTL();
       } finally {
         this.isLoading = false;
       }
@@ -104,7 +94,7 @@ export default {
     },
     filterShipsBy(option) {
       this.filterOption = parseInt(option);
-      if (this.isLoading) return;
+      // if (this.isLoading) return;
       if (this.currentPage > this.totalPages) {
         this.currentPage = this.totalPages;
       }
@@ -114,14 +104,14 @@ export default {
     },
 
     nextPage() {
-      if (this.currentPage < this.totalPages) {
+      // if (this.currentPage < this.totalPages) {
         this.currentPage++;
-      }
+      // }
     },
     prevPage() {
-      if (this.currentPage > 1) {
+      // if (this.currentPage > 1) {
         this.currentPage--;
-      }
+      // }
     },
     
     getShipPath(id, eors, type, ext, filename) {
@@ -169,30 +159,6 @@ export default {
 </script>
 
 <style scoped>
-.slide-fade-enter-active {
-  transition: all 0.6s ease-out;
-}
-
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-  transform: translateX(20px);
-  opacity: 0;
-}
-
-header {
-  display: flex;
-  position: fixed;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 50px;
-  padding: 10px;
-  top: 0;
-  left: 0;
-  background-color: rgb(48, 0, 36);
-  z-index: 3;
-}
-
 .main {
   display: flex;
   flex-direction: row;
@@ -200,19 +166,5 @@ header {
   align-items: center;
   justify-content: center;
   margin: 130px 0;
-}
-
-footer {
-  display: flex;
-  position: fixed;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 50px;
-  padding: 10px;
-  bottom: 0;
-  left: 0;
-  background-color: rgb(48, 0, 36);
-  z-index: 3;
 }
 </style>

@@ -1,12 +1,12 @@
 <template>
 <div class="loading-screen">
-    Loading...
+  Loading...
 </div>
 </template>
 
 <script>
 export default {
-    name: 'LoadingScreen',
+  name: 'LoadingScreen',
 };
 </script>
 

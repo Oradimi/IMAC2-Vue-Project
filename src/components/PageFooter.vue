@@ -1,11 +1,9 @@
 <template>
-<footer>
-    <div class="pagination">
-        <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
-        <span>{{ currentPage }} / {{ totalPages }}</span>
-        <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
-    </div>
-</footer>
+<div class="pagination">
+    <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
+    <span>{{ currentPage }} / {{ totalPages }}</span>
+    <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
+</div>
 </template>
   
 <script>
@@ -27,7 +25,17 @@ export default {
 </script>
   
 <style scoped>
-footer {
+/* button:disabled {
+    color: rgb(118, 118, 118);
+    background-color: rgb(35, 35, 35);
+}
+
+button:disabled:active {
+    color: rgb(118, 118, 118);
+    background-color: rgb(35, 35, 35);
+} */
+
+.pagination {
   display: flex;
   position: fixed;
   align-items: center;
@@ -35,7 +43,7 @@ footer {
   width: 100%;
   height: 50px;
   padding: 10px;
-  bottom: 0;
+  bottom: 50px;
   left: 0;
   background-color: rgb(48, 0, 36);
   z-index: 3;

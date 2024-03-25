@@ -2,7 +2,7 @@
     <div class="ship-card" :style="{ backgroundImage: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.169) 30%, rgb(48, 0, 36) 100%), url(' + image + ')' }">
         <div class="content">
             <div class="info">
-                <h2 class="name" ref="name_span"><span>{{ name }}</span></h2>
+                <h2 class="name" ref="name_span" @mouseenter="scroll" @mouseleave="scrollBack"><span>{{ name }}</span></h2>
                 <p class="type"><span>{{ type }}</span></p>
             </div>
             <div class="stats">
@@ -30,29 +30,23 @@ export default {
         antiair: {type: Number, required: true},
         armor: {type: Number, required: true}
     },
-    setup() {
-        // currently not working on page change
-        const name_span = ref(null);
-        onMounted(() => {
+    methods: {
+        scroll() {
             const transitionTimePerPixel = 0.01;
-            if (name_span.value && name_span.value.lastChild.clientWidth !== name_span.value.clientWidth) {
-                name_span.value.addEventListener('mouseenter', () => {
-                    let textWidth = name_span.value.lastChild.clientWidth;
-                    let boxWidth = parseFloat(getComputedStyle(name_span.value).width);
-                    let translateVal = Math.min(boxWidth - textWidth, 0);
-                    let translateTime = - transitionTimePerPixel * translateVal + "s";
-                    name_span.value.lastChild.style.transitionDuration = translateTime;
-                    name_span.value.lastChild.style.transform = "translateX("+translateVal+"px)";
-                });
-                name_span.value.addEventListener('mouseleave', () => {
-                    name_span.value.lastChild.style.transitionDuration = "0.3s";
-                    name_span.value.lastChild.style.transform = "translateX(0)";
-                });
-            }
-        });
-
-        return { name_span };
-    },
+            const nameSpan = this.$refs.name_span;
+            const textWidth = nameSpan.lastChild.clientWidth;
+            const boxWidth = parseFloat(getComputedStyle(nameSpan).width);
+            const translateVal = Math.min(boxWidth - textWidth, 0);
+            const translateTime = - transitionTimePerPixel * translateVal + "s";
+            nameSpan.lastChild.style.transitionDuration = translateTime;
+            nameSpan.lastChild.style.transform = "translateX("+translateVal+"px)";
+        },
+        scrollBack() {
+            const nameSpan = this.$refs.name_span;
+            nameSpan.lastChild.style.transitionDuration = "0.3s";
+            nameSpan.lastChild.style.transform = "translateX(0)";
+        }
+    }
 }
 </script>
 
