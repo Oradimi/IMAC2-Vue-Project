@@ -15,8 +15,7 @@
   :armor="ship.api_souk[1]"/>
 </div>
 
-<!-- <PageFooter :currentPage="currentPage" :totalPages="totalPages" @next-page="nextPage" @set-page="value => { currentPage = value }"/> -->
-<PageFooter :currentPage="currentPage" :totalPages="totalPages" @next-page="nextPage" @prev-page="prevPage"/>
+<PageFooter :currentPage="currentPage" :totalPages="totalPages" @updatePage="updatePage"/>
 </template>
 
 <script>
@@ -103,15 +102,8 @@ export default {
       }
     },
 
-    nextPage() {
-      // if (this.currentPage < this.totalPages) {
-        this.currentPage++;
-      // }
-    },
-    prevPage() {
-      // if (this.currentPage > 1) {
-        this.currentPage--;
-      // }
+    updatePage(value) {
+      this.currentPage += value;
     },
     
     getShipPath(id, eors, type, ext, filename) {

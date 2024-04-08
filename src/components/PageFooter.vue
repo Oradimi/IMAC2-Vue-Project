@@ -1,8 +1,8 @@
 <template>
 <div class="pagination">
-    <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
+    <button @click="updatePage(-1)" :disabled="currentPage === 1">Previous</button>
     <span>{{ currentPage }} / {{ totalPages }}</span>
-    <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
+    <button @click="updatePage(+1)" :disabled="currentPage === totalPages">Next</button>
 </div>
 </template>
   
@@ -14,18 +14,15 @@ export default {
         totalPages: Number
     },
     methods: {
-        nextPage() {
-            this.$emit('next-page');
-        },
-        prevPage() {
-            this.$emit('prev-page');
+        updatePage(value) {
+            this.$emit('updatePage', value);
         }
     }
 };
 </script>
   
 <style scoped>
-/* button:disabled {
+button:disabled {
     color: rgb(118, 118, 118);
     background-color: rgb(35, 35, 35);
 }
@@ -33,7 +30,7 @@ export default {
 button:disabled:active {
     color: rgb(118, 118, 118);
     background-color: rgb(35, 35, 35);
-} */
+}
 
 .pagination {
   display: flex;
