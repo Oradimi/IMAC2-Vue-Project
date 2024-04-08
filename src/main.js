@@ -7,7 +7,16 @@ import ShipGallery from "./pages/ShipGallery.vue"
 // import EquipmentGallery from "./pages/EquipmentGallery.vue"
 
 const routes = [
-    { path: '/ships', component: ShipGallery },
+    {
+        path: '/ships',
+        component: ShipGallery,
+        props: route => ({
+            sort: route.query.sort,
+            reverse: route.query.reverse,
+            filter: parseInt(route.query.filter),
+            page: parseInt(route.query.page),
+        }),
+    },
     // { path: '/equipment', component: EquipmentGallery },
     { path: '/:pathMatch(.*)', redirect: '/ships'}
 ]

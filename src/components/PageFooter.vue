@@ -15,7 +15,7 @@ export default {
     },
     methods: {
         updatePage(value) {
-            this.$emit('updatePage', value);
+            this.$emit('update-page', value);
         }
     }
 };

@@ -1,5 +1,5 @@
 <template>
-<PageHeader @sort="sortShipsBy" @reverse-sort="reverseSort" @filter="filterShipsBy"/>
+<PageHeader :initialSortReverse="sortReverse" @sort="sortShipsBy" @reverse-sort="reverseSort" @filter="filterShipsBy"/>
 
 <LoadingScreen v-if="isLoading"/>
 <div v-else class="main">
@@ -15,13 +15,14 @@
   :armor="ship.api_souk[1]"/>
 </div>
 
-<PageFooter :currentPage="currentPage" :totalPages="totalPages" @updatePage="updatePage"/>
+<PageFooter :currentPage="currentPage" :totalPages="totalPages" @update-page="updatePage"/>
 </template>
 
 <script>
 import { getApiData } from '@/service/api';
 import { getShipNameTL } from '@/service/ships';
 import { getShipTypeTL } from '@/service/ship_types';
+import { getDefaultSortAndFilterOptions } from "@/service/query_parser";
 
 import PageHeader from '@/components/PageHeader.vue';
 import LoadingScreen from '@/components/LoadingScreen.vue';
@@ -38,23 +39,37 @@ const sortOptions = {
 };
 
 export default {
-  name: 'Gallery',
+  name: 'ShipGallery',
   components: {
     PageHeader,
     LoadingScreen,
     ShipCard,
     PageFooter
   },
+  props: {
+    sort: String,
+    reverse: String,
+    filter: Number,
+    page: Number
+  },
   data() {
+    const {
+      sortOption,
+      sortReverse,
+      filterOption
+    } = getDefaultSortAndFilterOptions(this.$route.query);
+
+    const defaultCurrentPage = parseInt(this.$route.query.page) || 1;
+
     return {
       apiData: {},
       shipList: [],
       shipTypeList: {}, 
       isLoading: false,
-      sortOption: 'id',
-      sortReverse: false,
-      filterOption: 0,
-      currentPage: 1,
+      sortOption,
+      sortReverse,
+      filterOption,
+      currentPage: defaultCurrentPage,
       perPage: 20,
       shipNameTLs: {},
       shipTypeTLs: {},
@@ -71,6 +86,7 @@ export default {
         this.shipTypeTLs = getShipTypeTL();
       } finally {
         this.isLoading = false;
+        this.clampCurrentPage();
       }
     },
     async preFilterShips() {
@@ -93,13 +109,7 @@ export default {
     },
     filterShipsBy(option) {
       this.filterOption = parseInt(option);
-      // if (this.isLoading) return;
-      if (this.currentPage > this.totalPages) {
-        this.currentPage = this.totalPages;
-      }
-      if (this.currentPage < 1 && this.totalPages !== 0) {
-        this.currentPage = 1;
-      }
+      this.clampCurrentPage();
     },
 
     updatePage(value) {
@@ -118,11 +128,32 @@ export default {
         type = type.replace("_d", "");
       }
       const uniqueKey = filename ? "_" + filename : "";
-      return `/ship-cards/${pad(id, eors)}${suffix}_${create(id, `${eors}_${type}`)}${uniqueKey}.${ext}`;
+      return `/${eors}/${type}/${pad(id, eors)}${suffix}_${create(id, `${eors}_${type}`)}${uniqueKey}.${ext}`;
     },
     getTranslationFromJSONObject(data, string) {
       return string.trim() in data ? data[string.trim()] : string;
     },
+
+    updateRouteQueryParams() {
+      const { sortOption, sortReverse, filterOption, currentPage } = this;
+      this.$router.push({
+        query: {
+          sort: sortOption,
+          reverse: sortReverse,
+          filter: filterOption,
+          page: currentPage,
+        },
+      });
+    },
+
+    clampCurrentPage() {
+      if (this.currentPage > this.totalPages) {
+        this.currentPage = this.totalPages;
+      }
+      if (this.currentPage < 1 && this.totalPages !== 0) {
+        this.currentPage = 1;
+      }
+    }
   },
   computed: {
     totalItems() {
@@ -144,8 +175,23 @@ export default {
       return this.filteredShips.slice(start, start + this.perPage);
     }
   },
+  watch: {
+    sortOption: 'updateRouteQueryParams',
+    sortReverse: 'updateRouteQueryParams',
+    filterOption: 'updateRouteQueryParams',
+    currentPage: 'updateRouteQueryParams',
+  },
   created() {
     this.retrieveData();
+
+    this.$router.push({
+      query: {
+        sort: this.sortOption,
+        reverse: this.sortReverse,
+        filter: this.filterOption,
+        page: this.currentPage,
+      },
+    });
   }
 }
 </script>
