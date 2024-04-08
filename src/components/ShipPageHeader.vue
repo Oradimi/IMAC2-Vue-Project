@@ -32,7 +32,7 @@ export default {
       sortOption,
       sortReverse,
       filterOption
-    } = getDefaultSortAndFilterOptions(this.$route.query);
+    } = getDefaultSortAndFilterOptions(this.$route.query, 0);
 
     return {
       sortOptions: {

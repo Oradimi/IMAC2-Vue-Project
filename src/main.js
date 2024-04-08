@@ -21,7 +21,13 @@ const routes = [
     {
         path: '/equipment',
         name: 'equipment',
-        component: EquipmentGallery
+        component: EquipmentGallery,
+        props: route => ({
+            sort: route.query.sort,
+            reverse: route.query.reverse,
+            filter: parseInt(route.query.filter),
+            page: parseInt(route.query.page),
+        }),
     },
     { path: '/:pathMatch(.*)', redirect: '/ships'}
 ]

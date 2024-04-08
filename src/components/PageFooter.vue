@@ -1,8 +1,10 @@
 <template>
 <div class="pagination">
+    <button @click="updatePage(-1000)" :disabled="currentPage <= 1">First</button>
     <button @click="updatePage(-1)" :disabled="currentPage <= 1">Previous</button>
     <span>{{ currentPage }} / {{ totalPages }}</span>
     <button @click="updatePage(+1)" :disabled="currentPage >= totalPages">Next</button>
+    <button @click="updatePage(+1000)" :disabled="currentPage >= totalPages">Last</button>
 </div>
 </template>
   
