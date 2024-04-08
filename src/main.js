@@ -4,11 +4,12 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import * as VueRouter from "vue-router"
 import ShipGallery from "./pages/ShipGallery.vue"
-// import EquipmentGallery from "./pages/EquipmentGallery.vue"
+import EquipmentGallery from "./pages/EquipmentGallery.vue"
 
 const routes = [
     {
         path: '/ships',
+        name: 'ships',
         component: ShipGallery,
         props: route => ({
             sort: route.query.sort,
@@ -17,7 +18,11 @@ const routes = [
             page: parseInt(route.query.page),
         }),
     },
-    // { path: '/equipment', component: EquipmentGallery },
+    {
+        path: '/equipment',
+        name: 'equipment',
+        component: EquipmentGallery
+    },
     { path: '/:pathMatch(.*)', redirect: '/ships'}
 ]
 
