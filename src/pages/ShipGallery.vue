@@ -69,6 +69,7 @@ export default {
       sortOption,
       sortReverse,
       filterOption,
+      searchTerm: '',
       currentPage: defaultCurrentPage,
       perPage: 20,
       shipNameTLs: {},
@@ -107,8 +108,9 @@ export default {
     reverseSort() {
       this.sortReverse = !this.sortReverse;
     },
-    filterShipsBy(option) {
+    filterShipsBy(option, searchTerm) {
       this.filterOption = parseInt(option);
+      this.searchTerm = searchTerm;
       this.clampCurrentPage();
     },
 
@@ -167,8 +169,22 @@ export default {
       return this.sortReverse? this.shipList.sort(sortOptions[this.sortOption]).reverse() : this.shipList.sort(sortOptions[this.sortOption]);
     },
     filteredShips() {
-      if (this.filterOption === 0) return this.sortedShips;
-      return this.sortedShips.filter(ship => ship.api_stype == this.filterOption);
+      var filtered = this.sortedShips;
+
+      if (this.filterOption !== 0) {
+        filtered = filtered.filter(ship => ship.api_stype == this.filterOption);
+      }
+
+      const searchTerm = this.searchTerm.trim().toLowerCase();
+      if (searchTerm) {
+        filtered = filtered.filter(ship =>
+          this.getTranslationFromJSONObject(this.shipNameTLs, ship.api_name)
+            .toLowerCase()
+            .includes(searchTerm)
+        );
+      }
+
+      return filtered;
     },
     displayedShips() {
       const start = (this.currentPage - 1) * this.perPage;

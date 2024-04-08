@@ -9,6 +9,14 @@
   <select name="filter-options" class="filter-options" v-model="filterOption" @change="filterShips">
     <option v-for="(optionLabel, optionValue) in filterOptions" :value="optionValue" :key="optionValue">{{ optionLabel }}</option>
   </select>
+  <div class="search-bar">
+    <input
+      type="text"
+      v-model="searchTerm"
+      placeholder="Search by name..."
+      @input="filterShips"
+    />
+  </div>
 </div>
 </template>
 
@@ -41,6 +49,7 @@ export default {
       // filterOptions: {0: 'All', 1: '海防艦', 2: '駆逐艦', 3: '軽巡洋艦', 4: '重雷装巡洋艦', 5: '重巡洋艦', 6: '航空巡洋艦', 7: '軽空母', 8: '高速戦艦', 9: '戦艦', 10: '航空戦艦', 11: '正規空母', 13: '潜水艦', 14: '潜水空母', 16: '水上機母艦', 17: '揚陸艦', 18: '装甲空母', 19: '工作艦', 20: '潜水母艦', 21: '練習巡洋艦', 22: '補給艦'},
       filterOptions: {0: 'All', 1: 'DE', 2: 'DD', 3: 'CL', 4: 'CLT', 5: 'CA', 6: 'CAV', 7: 'CVL', 8: 'FBB', 9: 'BB', 10: 'BBV', 11: 'CV', 13: 'SS', 14: 'SSV', 16: 'AV', 17: 'LHA', 18: 'CVB', 19: 'AR', 20: 'AS', 21: 'CT', 22: 'AO'},
       filterOption,
+      searchTerm: '',
     };
   },
   methods: {
@@ -52,7 +61,7 @@ export default {
       this.$emit('reverse-sort');
     },
     filterShips() {
-      this.$emit('filter', this.filterOption);
+      this.$emit('filter', this.filterOption, this.searchTerm);
     }
   },
 };
@@ -111,5 +120,14 @@ select {
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
   border-top: 10px solid white;
+}
+
+.search-bar input {
+  width: 250px;
+  padding: 5px;
+  margin: 0 10px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 14px;
 }
 </style>
