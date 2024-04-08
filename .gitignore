@@ -1,6 +1,4 @@
 # Logs
-public/ship-cards/*
-
 logs
 *.log
 npm-debug.log*
