@@ -770,6 +770,7 @@ return {
 	"平安丸改": "Heian Maru Kai",
 	"Drum": "Drum",
 	"Drum改": "Drum Kai",
+	"春雨改二": "Harusame Kai Ni",
 
 	"駆逐イ級": "I-Class Destroyer",
 	"駆逐イ級後期型": "I-Class Destroyer Late Model",
