@@ -1,10 +1,10 @@
 # IMAC2-Vue-Project
 
-This template should help get you started developing with Vue 3 in Vite.
+This is a web project which goal was to exploit an API's data and implement an interface that lets users sort and filter the data.
 
 ## Recommended IDE Setup
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+[VSCode](https://code.visualstudio.com/)
 
 ## Customize configuration
 
